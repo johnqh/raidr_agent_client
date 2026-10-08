@@ -6,7 +6,7 @@
       "name": "@sudobility/raidr_agent_client",
       "devDependencies": {
         "@eslint/js": "^9.38.0",
-        "@sudobility/raidr_agent_types": "^0.0.5",
+        "@sudobility/raidr_agent_types": "^0.0.6",
         "@sudobility/raidr_types": "^0.1.14",
         "@sudobility/types": "^1.9.68",
         "@tanstack/react-query": "^5.90.5",
@@ -98,7 +98,7 @@
 
     "@standard-schema/spec": ["@standard-schema/spec@1.1.0", "", {}, "sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w=="],
 
-    "@sudobility/raidr_agent_types": ["@sudobility/raidr_agent_types@0.0.5", "", { "peerDependencies": { "@sudobility/raidr_types": "^0.1.11", "@sudobility/types": "^1.9.68" } }, "sha512-KynTuhwjuRFM4exQCZM/um+WksDFHfSLZvmhHc7vCD+v2W7Sa6VY7Hm0pUj28fKe1YTrtaxWLExLSj1LSm/VxA=="],
+    "@sudobility/raidr_agent_types": ["@sudobility/raidr_agent_types@0.0.6", "", { "peerDependencies": { "@sudobility/raidr_types": "^0.1.14", "@sudobility/types": "^1.9.68" } }, "sha512-2dXTHdzewY0xn/p+jddyjaK6QRJ94ZpTKkZGZ06F7Abt40WXEJLorGjBi6rK+36uJyEAeAiOW/eV3OtqCyKzGQ=="],
 
     "@sudobility/raidr_types": ["@sudobility/raidr_types@0.1.14", "", { "peerDependencies": { "@sudobility/types": "^1.9.68", "zod": "^4.0.0" }, "optionalPeers": ["zod"] }, "sha512-NO/NPGn1AoodZmjQI2dud5yxUgt39juj2g8tORNNazNoNLMukBsijvGwd/oJXweWzY38KFqfsqrFr49wZrlfmw=="],
 
