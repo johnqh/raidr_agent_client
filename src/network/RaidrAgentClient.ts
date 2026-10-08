@@ -15,6 +15,7 @@ import type {
   RunSummary,
   SiteAuthInfo,
   SiteContext,
+  SiteIconResponse,
   User,
 } from '@sudobility/raidr_agent_types';
 import type { McpManifest } from '@sudobility/raidr_types';
@@ -307,6 +308,23 @@ export class RaidrAgentClient {
       timeout: options?.timeout,
     });
     return validateResponse<McpManifest>(response.data, 'getSiteManifest');
+  }
+
+  /** A site's largest raster icon (`GET /sites/:apiHost/icon`). */
+  async getSiteIcon(
+    apiHost: string,
+    token: FirebaseIdToken,
+    options?: { timeout?: number }
+  ): Promise<BaseResponse<SiteIconResponse>> {
+    const url = buildUrl(
+      this.baseUrl,
+      `/api/v1/sites/${encodeURIComponent(apiHost)}/icon`
+    );
+    const response = await this.networkClient.get(url, {
+      headers: createAuthHeaders(token),
+      timeout: options?.timeout,
+    });
+    return validateResponse<SiteIconResponse>(response.data, 'getSiteIcon');
   }
 
   /** Store a finished local run for History (`POST /runs/import`). */

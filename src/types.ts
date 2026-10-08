@@ -55,6 +55,8 @@ export const QUERY_KEYS = {
   /** Cache key for one site's MCP manifest. */
   siteManifest: (apiHost: string) =>
     ['raidr_agent', 'site-manifest', apiHost] as const,
+  /** Cache key for one site's icon URL. */
+  siteIcon: (apiHost: string) => ['raidr_agent', 'site-icon', apiHost] as const,
   /** Cache key for one site's context (manifest, tool auth, routes). */
   siteContext: (apiHost: string) =>
     ['raidr_agent', 'site-context', apiHost] as const,

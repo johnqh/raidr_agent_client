@@ -100,6 +100,7 @@ describe('local mode calls', () => {
     );
     await client.getCandidates(['recipes'], 'tok');
     await client.getSiteManifest('localhost:8080', 'tok');
+    await client.getSiteIcon('www.humanitix.com', 'tok');
     const run = {
       request: 'x',
       intent: {
@@ -129,8 +130,11 @@ describe('local mode calls', () => {
     ]);
     for (const c of posts)
       expect(c[2].headers).toMatchObject({ Authorization: 'Bearer tok' });
-    expect((net.get as ReturnType<typeof vi.fn>).mock.calls[0][0]).toBe(
-      'https://a.example/api/v1/sites/localhost%3A8080/manifest'
-    );
+    expect(
+      (net.get as ReturnType<typeof vi.fn>).mock.calls.map(c => c[0])
+    ).toEqual([
+      'https://a.example/api/v1/sites/localhost%3A8080/manifest',
+      'https://a.example/api/v1/sites/www.humanitix.com/icon',
+    ]);
   });
 });
