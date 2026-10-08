@@ -37,7 +37,13 @@ All repos use **Bun only** — never npm, yarn or pnpm.
 src/
 ├── index.ts
 ├── types.ts                       # FirebaseIdToken, QUERY_KEYS, DEFAULT_STALE_TIME / DEFAULT_GC_TIME
-├── network/RaidrAgentClient.ts    # getHealth(), getUser()
+├── network/RaidrAgentClient.ts    # getHealth, getUser, understandIntent (POST /intent, IntentRequest),
+│                                  # classifyIntent (deprecated alias, string | IntentRequest), prepare (POST /prepare),
+│                                  # getSiteContext, getSiteAuth, getRuns, getRun, runsUrl,
+│                                  # getLlmPayload, getCandidates, getSiteManifest, importRun (local mode)
+├── hooks/useAgent.ts              # useUnderstandIntent, useClassifyIntent (deprecated), usePrepare, useSiteContext,
+│                                  # useSiteAuth, useRuns, useRun,
+│                                  # useLlmPayload, useCandidates, useSiteManifest, useImportRun (invalidates runs)
 ├── hooks/useHealth.ts             # placeholder query hook
 └── utils/raidr-agent-helpers.ts   # createAuthHeaders, createHeaders, buildUrl, handleApiError
 ```
@@ -65,7 +71,7 @@ copy its `dist/` and `package.json` into
 - Placeholder exports: `RaidrAgentClient.getHealth()` and the `useHealth` hook. `getUser()` is kept from the template.
 - Query keys are namespaced `['raidr_agent', ...]`; add new keys to `QUERY_KEYS` in `types.ts`.
 - Every response is checked with `validateResponse` before it is returned.
-- Depends on `@sudobility/raidr_agent_types` (dev) and peers `@sudobility/types`, `@tanstack/react-query`, `react`.
+- Depends on `@sudobility/raidr_agent_types` and `@sudobility/raidr_types` (dev, types only: `McpManifest`) and peers `@sudobility/types`, `@tanstack/react-query`, `react`.
 
 ## CI/CD
 

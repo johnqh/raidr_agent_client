@@ -1,13 +1,23 @@
 import type { NetworkClient } from '@sudobility/types';
 import type {
   BaseResponse,
+  CandidateSite,
   HealthCheckData,
+  IntentRequest,
   IntentResponse,
+  LlmPayloadRequest,
+  LlmPayloadResponse,
+  PrepareRequest,
+  PrepareResponse,
   RunDetail,
+  RunImportRequest,
+  RunImportResponse,
   RunSummary,
   SiteAuthInfo,
+  SiteContext,
   User,
 } from '@sudobility/raidr_agent_types';
+import type { McpManifest } from '@sudobility/raidr_types';
 import type { FirebaseIdToken } from '../types';
 import {
   buildUrl,
@@ -132,19 +142,73 @@ export class RaidrAgentClient {
 
   // --- Agent flow ---
 
-  /** Classify a request and list the sites that can answer it. */
-  async classifyIntent(
-    request: string,
+  /**
+   * Understand a request (six W's, selection mode) and list the sites that
+   * can answer it, ranked with a reason each (`POST /intent`). Send the
+   * device context (`country`, `locale`, `timeZone`, `now`) with it.
+   */
+  async understandIntent(
+    body: IntentRequest,
     token: FirebaseIdToken,
     options?: { timeout?: number }
   ): Promise<BaseResponse<IntentResponse>> {
     const url = buildUrl(this.baseUrl, '/api/v1/intent');
-    const response = await this.networkClient.post(
-      url,
-      { request },
-      { headers: createAuthHeaders(token), timeout: options?.timeout ?? 60_000 }
+    const response = await this.networkClient.post(url, body, {
+      headers: createAuthHeaders(token),
+      timeout: options?.timeout ?? 60_000,
+    });
+    return validateResponse<IntentResponse>(response.data, 'understandIntent');
+  }
+
+  /** @deprecated Use {@link understandIntent}; a string is sent as `{ request }`. */
+  async classifyIntent(
+    request: string | IntentRequest,
+    token: FirebaseIdToken,
+    options?: { timeout?: number }
+  ): Promise<BaseResponse<IntentResponse>> {
+    return this.understandIntent(
+      typeof request === 'string' ? { request } : request,
+      token,
+      options
     );
-    return validateResponse<IntentResponse>(response.data, 'classifyIntent');
+  }
+
+  /**
+   * Prepare the chosen sites (`POST /prepare`): per site the tools to call,
+   * whether to sign in and why, or why it cannot help; plus one merged form.
+   */
+  async prepare(
+    body: PrepareRequest,
+    token: FirebaseIdToken,
+    options?: { timeout?: number }
+  ): Promise<BaseResponse<PrepareResponse>> {
+    const url = buildUrl(this.baseUrl, '/api/v1/prepare');
+    const response = await this.networkClient.post(url, body, {
+      headers: createAuthHeaders(token),
+      timeout: options?.timeout ?? 90_000,
+    });
+    return validateResponse<PrepareResponse>(response.data, 'prepare');
+  }
+
+  /**
+   * Everything the agent needs about one site (`GET /sites/:apiHost/context`):
+   * its manifest, per-tool auth and page routes. Local mode uses it as the
+   * runner's `SiteContextSource`.
+   */
+  async getSiteContext(
+    apiHost: string,
+    token: FirebaseIdToken,
+    options?: { timeout?: number }
+  ): Promise<BaseResponse<SiteContext>> {
+    const url = buildUrl(
+      this.baseUrl,
+      `/api/v1/sites/${encodeURIComponent(apiHost)}/context`
+    );
+    const response = await this.networkClient.get(url, {
+      headers: createAuthHeaders(token),
+      timeout: options?.timeout,
+    });
+    return validateResponse<SiteContext>(response.data, 'getSiteContext');
   }
 
   /** How to sign the user in to a site and recognise its token. */
@@ -190,6 +254,73 @@ export class RaidrAgentClient {
       timeout: options?.timeout,
     });
     return validateResponse<RunDetail>(response.data, 'getRun');
+  }
+
+  // --- Local mode ---
+
+  /**
+   * The provider request for one agent step (`POST /llm/payload`). The app
+   * adds the user's own key and calls the provider itself; for `understand`
+   * send `input: { request, country?, locale?, timeZone?, now? }` (the server
+   * adds the label vocabulary).
+   */
+  async getLlmPayload(
+    body: LlmPayloadRequest,
+    token: FirebaseIdToken,
+    options?: { timeout?: number }
+  ): Promise<BaseResponse<LlmPayloadResponse>> {
+    const url = buildUrl(this.baseUrl, '/api/v1/llm/payload');
+    const response = await this.networkClient.post(url, body, {
+      headers: createAuthHeaders(token),
+      timeout: options?.timeout ?? 30_000,
+    });
+    return validateResponse<LlmPayloadResponse>(response.data, 'getLlmPayload');
+  }
+
+  /** The sites for an intent's labels (`POST /candidates`), unranked (local mode ranks them with `rank-sites`). */
+  async getCandidates(
+    labels: string[],
+    token: FirebaseIdToken,
+    options?: { timeout?: number }
+  ): Promise<BaseResponse<CandidateSite[]>> {
+    const url = buildUrl(this.baseUrl, '/api/v1/candidates');
+    const response = await this.networkClient.post(
+      url,
+      { labels },
+      { headers: createAuthHeaders(token), timeout: options?.timeout }
+    );
+    return validateResponse<CandidateSite[]>(response.data, 'getCandidates');
+  }
+
+  /** A site's MCP manifest (`GET /sites/:apiHost/manifest`), for direct calls. */
+  async getSiteManifest(
+    apiHost: string,
+    token: FirebaseIdToken,
+    options?: { timeout?: number }
+  ): Promise<BaseResponse<McpManifest>> {
+    const url = buildUrl(
+      this.baseUrl,
+      `/api/v1/sites/${encodeURIComponent(apiHost)}/manifest`
+    );
+    const response = await this.networkClient.get(url, {
+      headers: createAuthHeaders(token),
+      timeout: options?.timeout,
+    });
+    return validateResponse<McpManifest>(response.data, 'getSiteManifest');
+  }
+
+  /** Store a finished local run for History (`POST /runs/import`). */
+  async importRun(
+    run: RunImportRequest,
+    token: FirebaseIdToken,
+    options?: { timeout?: number }
+  ): Promise<BaseResponse<RunImportResponse>> {
+    const url = buildUrl(this.baseUrl, '/api/v1/runs/import');
+    const response = await this.networkClient.post(url, run, {
+      headers: createAuthHeaders(token),
+      timeout: options?.timeout ?? 30_000,
+    });
+    return validateResponse<RunImportResponse>(response.data, 'importRun');
   }
 
   /**

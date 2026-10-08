@@ -49,4 +49,13 @@ export const QUERY_KEYS = {
   runs: () => ['raidr_agent', 'runs'] as const,
   /** Cache key for one run. */
   run: (runId: string) => ['raidr_agent', 'run', runId] as const,
+  /** Cache key for the candidate sites of a label list. */
+  candidates: (labels: string[]) =>
+    ['raidr_agent', 'candidates', labels.join(',')] as const,
+  /** Cache key for one site's MCP manifest. */
+  siteManifest: (apiHost: string) =>
+    ['raidr_agent', 'site-manifest', apiHost] as const,
+  /** Cache key for one site's context (manifest, tool auth, routes). */
+  siteContext: (apiHost: string) =>
+    ['raidr_agent', 'site-context', apiHost] as const,
 } as const;
