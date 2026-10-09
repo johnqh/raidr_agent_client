@@ -16,6 +16,7 @@ import type {
   SiteAuthInfo,
   SiteContext,
   SiteIconResponse,
+  SiteSearchHit,
   User,
 } from '@sudobility/raidr_agent_types';
 import type { McpManifest } from '@sudobility/raidr_types';
@@ -325,6 +326,26 @@ export class RaidrAgentClient {
       timeout: options?.timeout,
     });
     return validateResponse<SiteIconResponse>(response.data, 'getSiteIcon');
+  }
+
+  /**
+   * Sites whose domain contains `query` and that have a sign-in
+   * (`GET /sites/search?q=`), for adding a credential.
+   */
+  async searchSites(
+    query: string,
+    token: FirebaseIdToken,
+    options?: { timeout?: number }
+  ): Promise<BaseResponse<SiteSearchHit[]>> {
+    const url = buildUrl(
+      this.baseUrl,
+      `/api/v1/sites/search?q=${encodeURIComponent(query)}`
+    );
+    const response = await this.networkClient.get(url, {
+      headers: createAuthHeaders(token),
+      timeout: options?.timeout,
+    });
+    return validateResponse<SiteSearchHit[]>(response.data, 'searchSites');
   }
 
   /** Store a finished local run for History (`POST /runs/import`). */

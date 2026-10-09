@@ -101,6 +101,7 @@ describe('local mode calls', () => {
     await client.getCandidates(['recipes'], 'tok');
     await client.getSiteManifest('localhost:8080', 'tok');
     await client.getSiteIcon('www.humanitix.com', 'tok');
+    await client.searchSites('su no', 'tok');
     const run = {
       request: 'x',
       intent: {
@@ -135,6 +136,7 @@ describe('local mode calls', () => {
     ).toEqual([
       'https://a.example/api/v1/sites/localhost%3A8080/manifest',
       'https://a.example/api/v1/sites/www.humanitix.com/icon',
+      'https://a.example/api/v1/sites/search?q=su%20no',
     ]);
   });
 });

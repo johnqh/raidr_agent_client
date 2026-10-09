@@ -57,6 +57,8 @@ export const QUERY_KEYS = {
     ['raidr_agent', 'site-manifest', apiHost] as const,
   /** Cache key for one site's icon URL. */
   siteIcon: (apiHost: string) => ['raidr_agent', 'site-icon', apiHost] as const,
+  /** Cache key for a site search (Settings → Add credential). */
+  siteSearch: (query: string) => ['raidr_agent', 'site-search', query] as const,
   /** Cache key for one site's context (manifest, tool auth, routes). */
   siteContext: (apiHost: string) =>
     ['raidr_agent', 'site-context', apiHost] as const,
